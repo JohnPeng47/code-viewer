@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.code-snapshot-widget {
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+}
+
+.prism-snapshot-pane::-webkit-scrollbar {
+  width: 10px;
+}
+
+.prism-snapshot-pane::-webkit-scrollbar-track {
+  background: rgb(15 23 42);
+}
+
+.prism-snapshot-pane::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85);
+  border-radius: 9999px;
+}
+
+.prism-snapshot-pane::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105);
+}
