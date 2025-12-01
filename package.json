@@ -8,16 +8,16 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
       "types": "./dist/types/index.d.ts"
-    },
-    "./styles.css": "./dist/style.css"
+    }
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "cd demo && vite",
-    "build": "tsc --emitDeclarationOnly && vite build",
+    "build": "tsc --emitDeclarationOnly --outDir dist/types && vite build",
     "preview": "cd demo && vite preview",
     "typecheck": "tsc --noEmit"
   },
@@ -42,7 +42,6 @@
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "codemirror": "^6.0.2",
-    "prismjs": "^1.30.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
@@ -52,7 +51,6 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@types/prismjs": "^1.26.5",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.2.1",
