@@ -74,6 +74,7 @@ export const CodePanel: React.FC<CodePanelProps> = ({
       lineNumbers(),
       getLanguageExtension(language),
       highlightField,
+      EditorView.lineWrapping,
       EditorView.theme({
         "&": { height: `${editorHeight}px` },
         ".cm-scroller": {
