@@ -1,5 +1,5 @@
 {
-  "name": "code-snapshot-widget",
+  "name": "code-viewer",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
