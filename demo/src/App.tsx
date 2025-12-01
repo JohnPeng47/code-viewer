@@ -12,8 +12,9 @@ const App: React.FC = () => {
           <p className="text-slate-400">
             Use the arrow keys or buttons below the widget to move between snapshots.
           </p>
+          <CodeSnapshotWidget snapshots={sampleSnapshots} height="720px" />
+          <p>This is another paragraph</p>
         </header>
-        <CodeSnapshotWidget snapshots={sampleSnapshots} height="720px" />
       </div>
     </div>
   );

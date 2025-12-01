@@ -92,3 +92,6 @@ jspm_packages/
 
 # TernJS port file
 .tern-port
+
+# AI planning documents (ephemeral)
+history/

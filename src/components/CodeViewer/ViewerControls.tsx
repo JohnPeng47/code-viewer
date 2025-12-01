@@ -1,4 +1,15 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  LinearProgress,
+  Stack,
+} from "@mui/material";
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@mui/icons-material";
 
 interface ViewerControlsProps {
   currentIndex: number;
@@ -15,47 +26,106 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({
   onNext,
   description,
 }) => {
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === totalSnapshots - 1;
+  const progress = ((currentIndex + 1) / totalSnapshots) * 100;
+
   return (
-    <div className="border-t border-slate-800 bg-slate-900 p-4">
-      <div className="flex items-center justify-between gap-4">
-        <button
+    <Box
+      sx={{
+        borderTop: "1px solid",
+        borderColor: "divider",
+        bgcolor: "#252526",
+        px: 2,
+        py: 1.5,
+      }}
+    >
+      <Stack direction="row" alignItems="center" spacing={2}>
+        {/* Previous Button */}
+        <Button
+          variant="outlined"
+          size="small"
           onClick={onPrevious}
-          disabled={currentIndex === 0}
-          className="rounded px-3 py-1.5 text-sm font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
-          aria-label="Previous snapshot"
+          disabled={isFirst}
+          startIcon={<ChevronLeftIcon />}
+          sx={{
+            borderColor: "grey.700",
+            color: "grey.300",
+            "&:hover": {
+              borderColor: "grey.500",
+              bgcolor: "rgba(255,255,255,0.05)",
+            },
+            "&.Mui-disabled": {
+              borderColor: "grey.800",
+              color: "grey.600",
+            },
+          }}
         >
-          ← Prev
-        </button>
+          Prev
+        </Button>
 
-        <div className="flex-1 text-center">
-          <div className="text-sm font-medium text-slate-200">
-            {currentIndex + 1} <span className="text-slate-500">/</span> {totalSnapshots}
-          </div>
+        {/* Center Info */}
+        <Box sx={{ flex: 1, textAlign: "center", minWidth: 0 }}>
+          <Typography variant="body2" sx={{ color: "grey.200", fontWeight: 500 }}>
+            {currentIndex + 1}{" "}
+            <Typography component="span" sx={{ color: "grey.600" }}>
+              /
+            </Typography>{" "}
+            {totalSnapshots}
+          </Typography>
           {description && (
-            <div className="mt-1 text-xs text-slate-400 truncate max-w-xl mx-auto">
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                color: "grey.500",
+                mt: 0.5,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
               {description}
-            </div>
+            </Typography>
           )}
-        </div>
+        </Box>
 
-        <button
+        {/* Next Button */}
+        <Button
+          variant="contained"
+          size="small"
           onClick={onNext}
-          disabled={currentIndex === totalSnapshots - 1}
-          className="rounded px-3 py-1.5 text-sm font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
-          aria-label="Next snapshot"
+          disabled={isLast}
+          endIcon={<ChevronRightIcon />}
+          sx={{
+            bgcolor: "primary.main",
+            "&:hover": {
+              bgcolor: "primary.dark",
+            },
+            "&.Mui-disabled": {
+              bgcolor: "grey.800",
+              color: "grey.600",
+            },
+          }}
         >
-          Next →
-        </button>
-      </div>
+          Next
+        </Button>
+      </Stack>
 
       {/* Progress Bar */}
-      <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-blue-500 transition-all duration-300 ease-out"
-          style={{ width: `${((currentIndex + 1) / totalSnapshots) * 100}%` }}
-        />
-      </div>
-    </div>
+      <LinearProgress
+        variant="determinate"
+        value={progress}
+        sx={{
+          mt: 1.5,
+          height: 4,
+          borderRadius: 2,
+          bgcolor: "grey.800",
+          "& .MuiLinearProgress-bar": {
+            borderRadius: 2,
+          },
+        }}
+      />
+    </Box>
   );
 };
-

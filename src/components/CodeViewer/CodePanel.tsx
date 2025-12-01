@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
+import { Box } from "@mui/material";
 import { EditorState, StateEffect, StateField } from "@codemirror/state";
-import { EditorView, Decoration, DecorationSet } from "@codemirror/view";
+import { EditorView, Decoration, DecorationSet, lineNumbers } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import { baseExtensions, getLanguageExtension, theme } from "../../utils/codeMirrorSetup";
 
@@ -9,6 +10,7 @@ export interface CodePanelProps {
   language: string;
   lineNumber?: number;
   highlightRange?: [number, number];
+  numLinesContext?: number;
 }
 
 // Effect to set the highlight range
@@ -28,15 +30,14 @@ const highlightField = StateField.define<DecorationSet>({
         const [startLine, endLine] = e.value;
         const builder = new RangeSetBuilder<Decoration>();
 
-        // Iterate through lines in the range
         for (let i = startLine; i <= endLine; i++) {
-          // Clamp to document bounds
           if (i > tr.state.doc.lines) break;
-
           const line = tr.state.doc.line(i);
-          builder.add(line.from, line.from, Decoration.line({
-            class: "cm-highlight-range bg-blue-500/20" // Tailwind class + backup
-          }));
+          builder.add(
+            line.from,
+            line.from,
+            Decoration.line({ class: "cm-highlight-range" })
+          );
         }
         return builder.finish();
       }
@@ -46,39 +47,60 @@ const highlightField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
+// Approximate line height in pixels (based on font-size 13px, line-height 1.6)
+const LINE_HEIGHT_PX = 21;
+
 export const CodePanel: React.FC<CodePanelProps> = ({
   content,
   language,
   lineNumber,
   highlightRange,
+  numLinesContext = 27,
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
 
-  // 1. Initialize / Re-initialize Editor on Content/Language change
+  // Calculate fixed height based on numLinesContext
+  const editorHeight = numLinesContext * LINE_HEIGHT_PX;
+
+  // Initialize / Re-initialize Editor with FULL content
   useEffect(() => {
     if (!editorRef.current) return;
+    if (viewRef.current) viewRef.current.destroy();
 
-    // Cleanup old view
-    if (viewRef.current) {
-      viewRef.current.destroy();
-    }
+    const extensions = [
+      theme,
+      ...baseExtensions,
+      lineNumbers(),
+      getLanguageExtension(language),
+      highlightField,
+      EditorView.theme({
+        "&": { height: `${editorHeight}px` },
+        ".cm-scroller": {
+          fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, monospace",
+          fontSize: "13px",
+          lineHeight: "1.6",
+          overflow: "auto",
+        },
+        ".cm-content": { padding: "12px 0" },
+        ".cm-line": { padding: "0 16px" },
+        ".cm-activeLine": { backgroundColor: "rgba(255, 213, 79, 0.15)" },
+        ".cm-highlight-range": { backgroundColor: "rgba(33, 150, 243, 0.15)" },
+        ".cm-gutters": {
+          backgroundColor: "#1e1e1e",
+          borderRight: "1px solid #333",
+        },
+        ".cm-lineNumbers .cm-gutterElement": {
+          padding: "0 12px 0 8px",
+          minWidth: "3em",
+          color: "#858585",
+        },
+      }),
+    ];
 
     const startState = EditorState.create({
-      doc: content,
-      extensions: [
-        theme,
-        baseExtensions,
-        getLanguageExtension(language),
-        highlightField, // Add our custom highlight field
-        EditorView.theme({
-          ".cm-scroller": { fontFamily: "inherit" },
-          ".cm-content": { padding: "16px 0" },
-          ".cm-line": { padding: "0 16px" },
-          ".cm-activeLine": { backgroundColor: "rgba(234, 179, 8, 0.15)" }, // Yellow tint
-          ".cm-highlight-range": { backgroundColor: "rgba(59, 130, 246, 0.15)" } // Blue tint
-        })
-      ],
+      doc: content, // Full file content
+      extensions,
     });
 
     const view = new EditorView({
@@ -92,39 +114,37 @@ export const CodePanel: React.FC<CodePanelProps> = ({
       view.destroy();
       viewRef.current = null;
     };
-  }, [content, language]);
+  }, [content, language, editorHeight]);
 
-  // 2. Handle Scrolling and Highlighting Updates
+  // Handle initial scroll to target line and highlighting
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
 
-    const effects: StateEffect<any>[] = [];
-
     // Scroll to target line
     if (lineNumber && lineNumber > 0 && lineNumber <= view.state.doc.lines) {
       const lineInfo = view.state.doc.line(lineNumber);
-
-      effects.push(EditorView.scrollIntoView(lineInfo.from, { y: "center" }));
-
-      // Also move cursor to that line to trigger `highlightActiveLine`
       view.dispatch({
         selection: { anchor: lineInfo.from },
-        effects
+        effects: EditorView.scrollIntoView(lineInfo.from, { y: "center" }),
       });
     }
 
-    // Update Highlight Range
+    // Set highlight range (using original line numbers since we have full content)
     view.dispatch({
-      effects: setHighlightRange.of(highlightRange || null)
+      effects: setHighlightRange.of(highlightRange || null),
     });
-
-  }, [lineNumber, highlightRange, content]); // Re-run when these change (content dependency ensures it runs after init)
+  }, [lineNumber, highlightRange, content]);
 
   return (
-    <div
+    <Box
       ref={editorRef}
-      className="h-full w-full overflow-hidden bg-[#282c34]"
+      sx={{
+        height: "100%",
+        width: "100%",
+        overflow: "hidden",
+        bgcolor: "#1e1e1e",
+      }}
     />
   );
 };

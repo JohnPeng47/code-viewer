@@ -20,6 +20,11 @@ export interface CodeSnapshot {
    * Optional range of lines to highlight.
    */
   highlightRange?: [number, number];
+  /**
+   * Number of lines to display around the focused line.
+   * Defaults to 15.
+   */
+  numLinesContext?: number;
 }
 
 export interface GitHubFileInfo {
@@ -35,5 +40,6 @@ export interface SnapshotPaneProps {
   language: string;
   lineNumber: number;
   highlightRange?: [number, number];
+  numLinesContext?: number;
   onContentReady?: () => void;
 }

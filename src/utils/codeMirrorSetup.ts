@@ -1,6 +1,6 @@
 import { Extension } from "@codemirror/state";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { keymap, highlightActiveLine, drawSelection, lineNumbers } from "@codemirror/view";
+import { keymap, highlightActiveLine, drawSelection } from "@codemirror/view";
 import { defaultKeymap } from "@codemirror/commands";
 import { EditorState } from "@codemirror/state";
 import { javascript } from "@codemirror/lang-javascript";
@@ -13,8 +13,8 @@ import { markdown } from "@codemirror/lang-markdown";
 
 export const theme = oneDark;
 
+// Removed lineNumbers() from here to allow per-component configuration (offsets)
 export const baseExtensions: Extension[] = [
-  lineNumbers(),
   highlightActiveLine(),
   drawSelection(),
   keymap.of(defaultKeymap),
@@ -40,4 +40,3 @@ export const getLanguageExtension = (lang: string): Extension => {
   const factory = languageMap[lang.toLowerCase()] || languageMap.text;
   return factory();
 };
-
